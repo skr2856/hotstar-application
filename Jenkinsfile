@@ -54,15 +54,15 @@ pipeline{
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
                        sh "docker build -t hotstar ."
-                       sh "docker tag hotstar acecloudacademy/hotstar:latest "
-                       sh "docker push acecloudacademy/hotstar:latest "
+                       sh "docker tag hotstar skr6528/hotstar:latest "
+                       sh "docker push skr6528/hotstar:latest "
                     }
                 }
             }
         }
         stage("TRIVY"){
             steps{
-                sh "trivy image acecloudacademy/hotstar:latest > trivyimage.txt" 
+                sh "trivy image skr6528/hotstar:latest > trivyimage.txt" 
             }
         }
         stage('Deploy to container'){
