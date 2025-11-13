@@ -1,12 +1,17 @@
 pipeline {
     agent any
+
     tools {
         jdk 'jdk'
         nodejs 'node'
     }
+
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
+        AWS_DEFAULT_REGION = 'us-east-1'
+        CLUSTER_NAME = 'eks-cluster5'
     }
+
     stages {
 
         stage('Clean Workspace') {
@@ -36,7 +41,7 @@ pipeline {
         stage('Quality Gate') {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
+                    waitForQualityGate abortPipeline: false
                 }
             }
         }
@@ -88,11 +93,31 @@ pipeline {
             steps {
                 sh '''
                     docker rm -f hotstar || true
-                    docker run -d --name hotstar -p 80:80 skr6528/hotstar:latest
+                    docker run -d --name hotstar -p 80:3000 skr6528/hotstar:latest
                 '''
             }
         }
 
+        stage('Configure Kubeconfig') {
+            steps {
+                sh '''
+                    echo "Configuring kubeconfig for EKS cluster..."
+                    aws eks --region $AWS_DEFAULT_REGION update-kubeconfig --name $CLUSTER_NAME
+                    echo "Verifying kubectl connectivity..."
+                    kubectl cluster-info
+                    kubectl get nodes
+                '''
+            }
+        }
+
+        stage('Deploy to EKS') {
+            steps {
+                sh '''
+                    echo "Applying manifests..."
+                    kubectl apply -f K8S/manifest.yml
+                '''
+            }
+        }
     }
 
     post {
@@ -115,7 +140,7 @@ pipeline {
                     from: 'skr6528@gmail.com',
                     replyTo: 'skr6528@gmail.com',
                     mimeType: 'text/html',
-                    attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
+                    attachmentsPattern: '**/trivy*.txt'
                 )
             }
         }
