@@ -21,7 +21,7 @@ pipeline {
             }
         }
 
-        stage('Sonarqube Analysis') {
+        stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh """
@@ -47,7 +47,7 @@ pipeline {
             }
         }
 
-        stage('OWASP FS SCAN') {
+        stage('OWASP FS Scan') {
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                     dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey 80C712B1-20C0-F011-8362-129478FCB64D', odcInstallation: 'DC'
@@ -56,7 +56,7 @@ pipeline {
             }
         }
 
-        stage('TRIVY FS SCAN') {
+        stage('Trivy FS Scan') {
             steps {
                 sh "trivy fs . > trivyfs.txt"
             }
@@ -74,7 +74,7 @@ pipeline {
             }
         }
 
-        stage('TRIVY Image Scan') {
+        stage('Trivy Image Scan') {
             steps {
                 sh "trivy image skr6528/hotstar:latest > trivyimage.txt"
             }
@@ -114,4 +114,3 @@ pipeline {
         }
     }
 }
-
