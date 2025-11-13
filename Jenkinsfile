@@ -88,7 +88,7 @@ pipeline {
             steps {
                 sh '''
                     docker rm -f hotstar || true
-                    docker run -d --name hotstar -p 3000:3000 skr6528/hotstar:latest
+                    docker run -d --name hotstar -p 80:80 skr6528/hotstar:latest
                 '''
             }
         }
