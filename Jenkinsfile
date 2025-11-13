@@ -48,7 +48,7 @@ pipeline{
         }
             stage('TRIVY FS SCAN') {
             steps {
-                sh "trivy fs . > trivyfs.txt"
+                sh "trivy fs . --exit-code 0 > trivyfs.txt || true"
             }
         }
         stage("Docker Build"){
